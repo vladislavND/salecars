@@ -5,22 +5,34 @@ class Marks(models.Model):
     name = models.CharField(max_length=255)
     slug_name = models.CharField(max_length=255, null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Models(models.Model):
     name = models.CharField(max_length=255)
     slug_name = models.CharField(max_length=255, null=True, blank=True)
-    model = models.ForeignKey(Marks, on_delete=models.CASCADE)
+    mark = models.ForeignKey(Marks, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class City(models.Model):
     name = models.CharField(max_length=255)
     name_slug = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
 
 class Region(models.Model):
     name = models.CharField(max_length=255)
     name_slug = models.CharField(max_length=255)
     city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Auto(models.Model):
@@ -53,6 +65,9 @@ class Auto(models.Model):
     date = models.DateField(auto_now=True)
     description = models.CharField(max_length=255, null=True, blank=True)
 
+    def __str__(self):
+        return self.model.name
+
 
 class User(models.Model):
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
@@ -63,6 +78,9 @@ class User(models.Model):
     auto = models.ForeignKey(Auto, on_delete=models.CASCADE, null=True, blank=True)
     telegram_id = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.username
 
 
 
