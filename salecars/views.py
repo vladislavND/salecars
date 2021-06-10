@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from salecars.bot import bot
 
 

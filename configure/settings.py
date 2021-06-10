@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -126,3 +126,9 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+### Настройки бота
+BOT_TOKEN = '1055601888:AAHBnyFdyPoAb_or3KDMSXHgjY9y8IpZXO0'
+ADMIN_ID = 771712845
+IP = "localhost"
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
