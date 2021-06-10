@@ -12,15 +12,7 @@ class Marks(models.Model):
 class Models(models.Model):
     name = models.CharField(max_length=255)
     slug_name = models.CharField(max_length=255, null=True, blank=True)
-    mark = models.ForeignKey(Marks, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
-
-class City(models.Model):
-    name = models.CharField(max_length=255)
-    name_slug = models.CharField(max_length=255)
+    mark = models.ForeignKey(Marks, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -29,7 +21,15 @@ class City(models.Model):
 class Region(models.Model):
     name = models.CharField(max_length=255)
     name_slug = models.CharField(max_length=255)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    name = models.CharField(max_length=255)
+    name_slug = models.CharField(max_length=255)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -57,6 +57,7 @@ class Auto(models.Model):
     model = models.ForeignKey(Models, on_delete=models.CASCADE)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
     resident = models.BooleanField()
+    crash = models.BooleanField()
     engine = models.CharField(max_length=255, choices=ENGINE_CHOICES)
     steering_wheel = models.CharField(max_length=255, choices=WHEEL_CHOICES)
     value = models.CharField(max_length=255, null=True, blank=True)

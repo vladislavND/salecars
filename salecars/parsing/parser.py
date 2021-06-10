@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet, Tag
 from selenium import webdriver
+from salecars.models import Region, City, Models, Marks
 
 
 class Parser:
@@ -142,53 +143,48 @@ class Parser:
         return data_collection
 
 
-def parse_model():
-    driver = webdriver.Firefox(executable_path='/usr/local/bin/geckodriver')
-    parent_model = []
-    data_alias = []
-    print('Окно браузера открыто')
-    driver.get('https://kolesa.kz')
-    driver.find_element_by_class_name('action-link').click()
-    driver.find_element_by_class_name('arrow-link').click()
-    object_model = driver.find_elements_by_class_name('action-link')
-    for model in object_model:
-        parent_model.append(model.text)
-        data_alias.append(model.get_attribute('data-alias'))
-    models = dict(zip(parent_model, data_alias))
-    driver.close()
-    print('Окнодрайвера закрыто и не выполняет никаких действий')
-    return models
-
-
 def parse_regions():
-    driver = webdriver.Firefox(executable_path='/usr/local/bin/geckodriver')
-    regions = []
-    slug_regions = []
-    driver.get('https://kolesa.kz')
-    driver.find_element_by_class_name('action-link').click()
-    driver.find_element_by_class_name('FilterItem__label').click()
-    object_regions = driver.find_elements_by_class_name('FilterItem')
-    for obj in object_regions:
-        slug_regions.append(obj.get_attribute('data-alias'))
-        regions.append(obj.text)
-    driver.close()
-    return
+    response = requests.get('https://m.kolesa.kz/regions/all/')
+    for region in response.json():
+        iskz = region.get('isKz')
+        if iskz is True:
+            Region.objects.create(name=region.get('value'), name_slug=region.get('alias'))
+        name = Region.objects.all()
+        p = name.values_list('name', flat=True)
+        if region.get('parent') is not None and any(region.get('parent') in s for s in p):
+            City.objects.create(
+                name=region.get('value'),
+                name_slug=region.get('alias'),
+                region=Region.objects.get(name=region.get('parent'))
+            )
 
 
-def test():
-    city_slug = []
-    driver = webdriver.Firefox(executable_path='/usr/local/bin/geckodriver')
-    driver.get('https://kolesa.kz')
-    driver.find_element_by_class_name('action-link').click()
-    driver.find_element_by_class_name('FilterItem').click()
-    data = {}
-    for regions in driver.find_elements_by_class_name('FilterItem__label')[9:]:
-        a = regions.click()
-        city = driver.find_elements_by_class_name('FilterItem')
-        for i in city:
-            data.update({i.text:i.get_attribute('data-alias')})
-        break
-    print(data)
+def parse_cars():
+    response = requests.get('https://m.kolesa.kz/car/brands/?category=auto.car')
+    for cars in response.json():
+        mark_id = cars.get('id')
+        Marks.objects.create(name=cars.get('value'), slug_name=cars.get('name'))
+        r = requests.get(f'https://m.kolesa.kz/car/models/{mark_id}/')
+        for mod in r.json():
+            Models.objects.create(
+                name=mod.get('value'),
+                slug_name=mod.get('name'),
+                mark=Marks.objects.get(name=cars.get('value'))
+            )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

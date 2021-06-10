@@ -1,4 +1,6 @@
 from aiogram import types
+from salecars.models import Region
+from salecars.models import Marks
 
 
 def start_keyboard():
@@ -15,20 +17,20 @@ def register_keyboard():
     return keyboard_markup.add(*btn)
 
 
-# def region_keyboard():
-#     regions = Region.query.all()
-#     btn_text = ((region.name, region.id) for region in regions)
-#     keyboard_markup = types.InlineKeyboardMarkup(row_width=3)
-#     btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
-#     return keyboard_markup.add(*btn)
+def region_keyboard():
+    regions = Region.objects.all()
+    btn_text = ((region.name, region.id) for region in regions)
+    keyboard_markup = types.InlineKeyboardMarkup(row_width=3)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
+    return keyboard_markup.add(*btn)
 
-#
-# def models_keyboard():
-#     models = Marks.query.all()
-#     btn_text = ((model.name, model.id) for model in models)
-#     keyboard_markup = types.InlineKeyboardMarkup(row_width=3)
-#     btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
-#     return keyboard_markup.add(*btn)
+
+def models_keyboard():
+    marks = Marks.objects.all()
+    btn_text = ((mark.name, mark.id) for mark in marks)
+    keyboard_markup = types.InlineKeyboardMarkup(row_width=3)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
+    return keyboard_markup.add(*btn)
 
 
 def paginations_keyboard(count_pages, count=1):

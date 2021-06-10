@@ -26,9 +26,16 @@ class RegionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Marks)
-class RegionAdmin(admin.ModelAdmin):
+class MarksAdmin(admin.ModelAdmin):
     list_fields = ('__all__')
     list_display = ['name']
+
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    list_fields = ('__all__')
+    list_display = ['name']
+
 
 
 
