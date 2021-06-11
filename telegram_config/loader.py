@@ -5,10 +5,11 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.parts import paginate
 
+from salecars.models import User
 from .data import config
 from salecars.bot.keyboard import (
     start_keyboard, register_keyboard, paginations_keyboard,
-    region_keyboard, models_keyboard
+    region_keyboard, models_keyboard, city_keyboard, marks_keyboard
 )
 # from parsing import schema as sh
 from salecars.bot.states import UserState
@@ -47,48 +48,60 @@ async def register_start(callback_data: types.CallbackQuery):
 
 @dp.callback_query_handler(state=UserState.region)
 async def register_region(callback_data: types.CallbackQuery, state: FSMContext):
-    data = callback_data.data
-    region_id = data.get('data')
+    region_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['region_id'] = region_id
     await bot.send_message(
-        chat_id=data.get('from').get('id'),
-        text='Пожалуйста выберите модель автомобиля',
-        reply_markup=models_keyboard()
+        chat_id=callback_data.from_user.id,
+        text='Выберите город',
+        reply_markup=city_keyboard(region_id)
+    )
+    await UserState.city.set()
+
+
+@dp.callback_query_handler(state=UserState.city)
+async def register_city(callback_data: types.CallbackQuery, state: FSMContext):
+    city_id = callback_data.data
+    async with state.proxy() as state_data:
+        state_data['city_id'] = city_id
+    await bot.send_message(
+        chat_id=callback_data.from_user.id,
+        text='Выберите марку',
+        reply_markup=marks_keyboard()
+    )
+    await UserState.marks.set()
+
+
+@dp.callback_query_handler(state=UserState.marks)
+async def register_marks(callback_data: types.CallbackQuery, state: FSMContext):
+    mark_id = callback_data.data
+    async with state.proxy() as state_data:
+        state_data['mark_id'] = mark_id
+    await bot.send_message(
+        chat_id=callback_data.from_user.id,
+        text='Выберите модель',
+        reply_markup=models_keyboard(mark_id)
     )
     await UserState.models.set()
 
 
 @dp.callback_query_handler(state=UserState.models)
 async def register_models(callback_data: types.CallbackQuery, state: FSMContext):
-    data = callback_data.data
-    model_id = data.get('data')
+    model_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['model_id'] = model_id
     await bot.send_message(
-        chat_id=data.get('from').get('id'),
-        text='Пожалуйста введите цену ОТ:',
+        chat_id=callback_data.from_user.id,
+        text='Введите цену:'
     )
-    await UserState.price_from.set()
+    await UserState.price.set()
 
 
-@dp.message_handler(state=UserState.price_from)
-async def register_price_from(message: types.Message, state: FSMContext):
-    price_from = message.text
-    async with state.proxy() as state_data:
-        state_data['price_from'] = price_from
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text='Введите цену ДО:'
-    )
-    await UserState.price_to.set()
-
-
-# @dp.message_handler(state=UserState.price_to)
+# @dp.message_handler(state=UserState.price)
 # async def register_price_to(message: types.Message, state: FSMContext):
-#     price_to = message.text
+#     price = message.text
 #     async with state.proxy() as state_data:
-#         state_data['price_to'] = price_to
+#         state_data['price'] = price
 #
 #     info = await state.get_data()
 #     info['username'] = message.from_user.username

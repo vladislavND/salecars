@@ -4,9 +4,10 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 class UserState(StatesGroup):
 
     region = State()
+    city = State()
+    marks = State()
     models = State()
-    price_to = State()
-    price_from = State()
+    price = State()
     view = State()
 
 
