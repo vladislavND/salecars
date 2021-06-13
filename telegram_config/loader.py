@@ -9,7 +9,8 @@ from salecars.models import User
 from .data import config
 from salecars.bot.keyboard import (
     start_keyboard, register_keyboard, paginations_keyboard,
-    region_keyboard, models_keyboard, city_keyboard, marks_keyboard
+    region_keyboard, models_keyboard, city_keyboard, marks_keyboard,
+    true_and_false_keyboard,
 )
 # from parsing import schema as sh
 from salecars.bot.states import UserState
@@ -92,10 +93,61 @@ async def register_models(callback_data: types.CallbackQuery, state: FSMContext)
         state_data['model_id'] = model_id
     await bot.send_message(
         chat_id=callback_data.from_user.id,
+        text='Растаможен в Казахстане?',
+        reply_markup=true_and_false_keyboard()
+    )
+    await UserState.resident.set()
+
+
+@dp.callback_query_handler(state=UserState.resident)
+async def register_resident(callback_data: types.CallbackQuery, state: FSMContext):
+    resident = callback_data.data
+    async with state.proxy() as state_data:
+        state_data['resident'] = resident
+    await bot.send_message(
+        chat_id=callback_data.from_user.id,
         text='Введите цену:'
     )
-    await UserState.price.set()
+    await UserState.resident.set()
 
+
+@dp.message_handler(state=UserState.price)
+async def register_price(message: types.Message, state: FSMContext):
+    price = message.text
+    async with state.proxy() as state_data:
+        state_data['price'] = price
+    await bot.send_message(
+        chat_id=message.from_user.id,
+        text='Отправьте фото автомобиля'
+    )
+    await UserState.image.set()
+
+
+@dp.message_handler(state=UserState.price)
+async def register_image(message: types.Message, state: FSMContext):
+    price = message.text
+    async with state.proxy() as state_data:
+        state_data['price'] = price
+    await bot.send_message(
+        chat_id=message.from_user.id,
+        text='Отправьте фото автомобиля'
+    )
+    await UserState.image.set()
+
+
+@dp.message_handler(content_types=['photo'], state=UserState.image)
+async def register_user(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    user = await state.get_data()
+    await message.photo[-1].download(f'image/{user_id}/{user_id}{user.get("marks")}.jpg')
+    # price = message.text
+    # async with state.proxy() as state_data:
+    #     state_data['price'] = price
+    # await bot.send_message(
+    #     chat_id=message.from_user.id,
+    #     text='Отправьте фото автомобиля'
+    # )
+    # await UserState.image.set()
 
 # @dp.message_handler(state=UserState.price)
 # async def register_price_to(message: types.Message, state: FSMContext):

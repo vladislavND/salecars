@@ -57,7 +57,7 @@ class Auto(models.Model):
     model = models.ForeignKey(Models, on_delete=models.CASCADE)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
     resident = models.BooleanField()
-    crash = models.BooleanField()
+    crash = models.BooleanField(default=False)
     engine = models.CharField(max_length=255, choices=ENGINE_CHOICES)
     steering_wheel = models.CharField(max_length=255, choices=WHEEL_CHOICES)
     value = models.CharField(max_length=255, null=True, blank=True)
@@ -65,6 +65,7 @@ class Auto(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2)
     date = models.DateField(auto_now=True)
     description = models.CharField(max_length=255, null=True, blank=True)
+    image = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.model.name

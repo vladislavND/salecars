@@ -8,6 +8,14 @@ class UserState(StatesGroup):
     marks = State()
     models = State()
     price = State()
+    crash = State()
+    engine = State()
+    value = State()
+    year = State()
+    steering_wheel = State()
+    description = State()
+    resident = State()
+    image = State()
     view = State()
 
 
