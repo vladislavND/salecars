@@ -10,7 +10,7 @@ from .data import config
 from salecars.bot.keyboard import (
     start_keyboard, register_keyboard, paginations_keyboard,
     region_keyboard, models_keyboard, city_keyboard, marks_keyboard,
-    true_and_false_keyboard,
+    true_and_false_keyboard
 )
 # from parsing import schema as sh
 from salecars.bot.states import UserState
@@ -96,7 +96,7 @@ async def register_models(callback_data: types.CallbackQuery, state: FSMContext)
         text='Растаможен в Казахстане?',
         reply_markup=true_and_false_keyboard()
     )
-    await UserState.resident.set()
+    await UserState.price.set()
 
 
 @dp.callback_query_handler(state=UserState.resident)

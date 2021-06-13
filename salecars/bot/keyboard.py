@@ -57,9 +57,9 @@ def paginations_keyboard(count_pages, count=1):
 
 
 def true_and_false_keyboard():
-    btn_text = (('Да', True), ('Нет', False))
+    btn_text = (('Да', 'True'), ('Нет', 'False'))
     keyboard_markup = types.InlineKeyboardMarkup(row_width=2)
-    btn = (types.InlineKeyboardButton(text, data) for text, data in btn_text)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
     return keyboard_markup.add(*btn)
 
 
