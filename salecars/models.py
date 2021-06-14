@@ -85,6 +85,30 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
+    @classmethod
+    def create_many_to_many(cls, many_model, **kwargs):
+        state_user = kwargs
+        auto = many_model(
+            model=Models.objects.get(id=state_user.get('model_id')),
+            region=Region.objects.get(id=state_user.get('region_id')),
+            resident=state_user.get('resident_bool'), crash=state_user.get('crash_bool'),
+            engine=state_user.get('engine'), steering_wheel=state_user.get('wheel'),
+            value=state_user.get('value'), price=state_user.get('price'),
+            image=state_user.get('image'), description=state_user.get('description'),
+            year=state_user.get('year'))
+        auto.save()
+        if cls.objects.get(telegram_id=state_user.get('user_id')).exists():
+            u = cls.objects.get(telegram_id=state_user.get('user_id'))
+            u.auto.add(auto)
+        else:
+            user = cls(
+                region=Region.objects.get(id=state_user.get('region_id')),
+                username=state_user.get('username'), mobile_phone=state_user.get('phone'),
+                telegram_id=state_user.get('user_id'), first_name=state_user.get('first_name')
+            )
+            user.save()
+            user.auto.add(auto)
+
 
 
 

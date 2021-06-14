@@ -250,28 +250,11 @@ async def register_phone(message: types.Message, state: FSMContext):
         phone = message.text
     async with state.proxy() as state_data:
         state_data['phone'] = phone
-
+        state_data['user_id'] = message.from_user.id
+        state_data['first_name'] = message.from_user.first_name
+        state_data['username'] = message.from_user.username
     state_user = await state.get_data()
-    auto = Auto(
-        model=Models.objects.get(id=state_user.get('model_id')),
-        region=Region.objects.get(id=state_user.get('region_id')),
-        resident=state_user.get('resident_bool'), crash=state_user.get('crash_bool'),
-        engine=state_user.get('engine'), steering_wheel=state_user.get('wheel'),
-        value=state_user.get('value'), price=state_user.get('price'),
-        image=state_user.get('image'), description=state_user.get('description'),
-        year=state_user.get('year'))
-    auto.save()
-    if User.objects.filter(telegram_id=message.from_user.id).exists():
-        u = User.objects.get(telegram_id=message.from_user.id)
-        u.auto.add(auto)
-    else:
-        user = User(
-            region=Region.objects.get(id=state_user.get('region_id')),
-            username=message.from_user.username, mobile_phone=state_user.get('phone'),
-            telegram_id=message.from_user.id, first_name=message.from_user.first_name
-        )
-        user.save()
-        user.auto.add(auto)
+    User.create_many_to_many(Auto, **state_user)
     await bot.send_message(
         chat_id=message.chat.id,
         text='Ваше объявление передано модератору, как только объявление пройдет проверку вы получите уведомление'
