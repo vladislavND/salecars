@@ -145,33 +145,51 @@ async def register_engine(callback_data: types.CallbackQuery, state:FSMContext):
         state_data['engine'] = engine
     await bot.send_message(
         chat_id=callback_data.from_user.id,
-        text='Введите объем двигателя',
+        text='Введите объем двигателя: Например (2.0)',
     )
     await UserState.value.set()
 
 
 @dp.message_handler(state=UserState.value)
 async def register_value(message: types.Message, state: FSMContext):
-    value = message.text
-    async with state.proxy() as state_data:
-        state_data['value'] = value
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text='Введите год:'
-    )
-    await UserState.year.set()
+    try:
+        value = message.text
+        value = float(value)
+        async with state.proxy() as state_data:
+            state_data['value'] = value
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text='Введите год:'
+        )
+        await UserState.year.set()
+    except ValueError:
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text='Обьем должен состоять только из цифр! Например (2.0)'
+        )
+        await UserState.value.set()
 
 
 @dp.message_handler(state=UserState.year)
 async def register_year(message: types.Message, state: FSMContext):
-    year = message.text
-    async with state.proxy() as state_data:
-        state_data['year'] = year
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text='Введите цену'
-    )
-    await UserState.price.set()
+    try:
+        year = message.text
+        if len(year) < 4 or len(year) > 4:
+            raise ValueError
+        year = int(year)
+        async with state.proxy() as state_data:
+            state_data['year'] = year
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text='Введите цену'
+        )
+        await UserState.price.set()
+    except ValueError:
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text='Год должен состоять только из 4 цифр! (Введите год еше раз)'
+        )
+        await UserState.year.set()
 
 
 @dp.message_handler(state=UserState.price)
@@ -189,7 +207,7 @@ async def register_price(message: types.Message, state: FSMContext):
     except ValueError:
         await bot.send_message(
             chat_id=message.from_user.id,
-            text='Цена должна состоять только из цифр'
+            text='Цена должна состоять только из цифр! (Введите цену еще раз)'
         )
         await UserState.price.set()
 
@@ -244,7 +262,8 @@ async def register_phone(message: types.Message, state: FSMContext):
         year=state_user.get('year'))
     auto.save()
     if User.objects.filter(telegram_id=message.from_user.id).exists():
-        User.objects.filter(telegram_id=message.from_user.id).add(auto)
+        u = User.objects.get(telegram_id=message.from_user.id)
+        u.auto.add(auto)
     else:
         user = User(
             region=Region.objects.get(id=state_user.get('region_id')),
