@@ -63,3 +63,31 @@ def true_and_false_keyboard():
     return keyboard_markup.add(*btn)
 
 
+def wheel_choices_keyboard():
+    btn_text = (('Слева', 'LEFT'), ('Справа', 'RIGHT'))
+    keyboard_markup = types.InlineKeyboardMarkup(row_width=2)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
+    return keyboard_markup.add(*btn)
+
+
+def engine_keyboard():
+    btn_text = (
+        ('Газ', 'GAS'),
+        ('Бензин', 'BENZ'),
+        ('Газ-бензин', 'GAS_BENZ'),
+        ('Дизель', 'DIESEL'),
+        ('Электро', 'ELECTRO')
+    )
+    keyboard_markup = types.InlineKeyboardMarkup(row_width=2)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
+    return keyboard_markup.add(*btn)
+
+
+def phone_keyboard():
+    keyboard_markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
+    btn = types.KeyboardButton('Поделиться номером', request_contact=True)
+    return keyboard_markup.add(btn)
+
+
+
+

@@ -66,6 +66,7 @@ class Auto(models.Model):
     date = models.DateField(auto_now=True)
     description = models.CharField(max_length=255, null=True, blank=True)
     image = models.CharField(max_length=255, null=True, blank=True)
+    published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.model.name
@@ -77,7 +78,7 @@ class User(models.Model):
     mobile_phone = models.CharField(max_length=12)
     price_to = models.IntegerField(null=True, blank=True)
     price_from = models.IntegerField(null=True, blank=True)
-    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, null=True, blank=True)
+    auto = models.ManyToManyField(Auto, null=True, blank=True)
     telegram_id = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255, null=True, blank=True)
 

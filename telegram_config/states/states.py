@@ -16,6 +16,7 @@ class UserState(StatesGroup):
     description = State()
     resident = State()
     image = State()
+    phone = State()
     view = State()
 
 
