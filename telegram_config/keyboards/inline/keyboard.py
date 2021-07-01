@@ -4,7 +4,7 @@ from salecars.models import Marks, Models
 
 
 def start_keyboard():
-    btn_text = (('Поиск', 'search'), ('Подать', 'send'), ('Личный фильтр', 'filter'))
+    btn_text = (('Поиск', 'search'), ('Подать', 'send'), ('Личный фильтр', 'filter'), ('Личный кабинет', 'cabinet'))
     keyboard_markup = types.InlineKeyboardMarkup(row_width=2)
     btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
     return keyboard_markup.add(*btn)
@@ -87,6 +87,17 @@ def phone_keyboard():
     keyboard_markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=True)
     btn = types.KeyboardButton('Поделиться номером', request_contact=True)
     return keyboard_markup.add(btn)
+
+
+def edit_profile_keyboard():
+    btn_text = (
+        ('Изменить регион', 'edit_region'),
+        ('Изменить телефон', 'edit_phone'),
+        ('Изменить город', 'edit_city'),
+        ('Назад', 'back'))
+    keyboard_markup = types.InlineKeyboardMarkup(row_width=1)
+    btn = (types.InlineKeyboardButton(text, callback_data=data) for text, data in btn_text)
+    return keyboard_markup.add(*btn)
 
 
 

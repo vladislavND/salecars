@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
@@ -108,6 +109,21 @@ class User(models.Model):
             )
             user.save()
             user.auto.add(auto)
+
+    @classmethod
+    def check_user(cls, telegram_id):
+        try:
+            cls.objects.get(telegram_id=telegram_id)
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    @classmethod
+    def get_user(cls, telegram_id):
+        autos = cls.objects.get(telegram_id=telegram_id)
+        return autos
+
+
 
 
 

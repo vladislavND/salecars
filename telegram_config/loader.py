@@ -11,7 +11,7 @@ from telegram_config.keyboards.inline.keyboard import (
     start_keyboard, register_keyboard, paginations_keyboard,
     region_keyboard, models_keyboard, city_keyboard, marks_keyboard,
     true_and_false_keyboard, wheel_choices_keyboard, engine_keyboard,
-    phone_keyboard
+    phone_keyboard, edit_profile_keyboard
 )
 from telegram_config.states.states import UserState
 from salecars.models import User, Auto, Models, Region
@@ -34,12 +34,14 @@ async def start(message: types.Message, state: FSMContext):
         reply_markup=start_keyboard(),
         disable_web_page_preview=True
     )
+    await UserState.register.set()
 
 
-@dp.callback_query_handler(text='send')
+@dp.callback_query_handler(text='send', state=UserState.register)
 async def register_start(callback_data: types.CallbackQuery):
     chat_id = callback_data.from_user.id
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=chat_id,
         text='Пожалуйста выберите регион',
         reply_markup=region_keyboard()
@@ -52,7 +54,8 @@ async def register_region(callback_data: types.CallbackQuery, state: FSMContext)
     region_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['region_id'] = region_id
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Выберите город',
         reply_markup=city_keyboard(region_id)
@@ -65,7 +68,8 @@ async def register_city(callback_data: types.CallbackQuery, state: FSMContext):
     city_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['city_id'] = city_id
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Выберите марку',
         reply_markup=marks_keyboard()
@@ -78,7 +82,8 @@ async def register_marks(callback_data: types.CallbackQuery, state: FSMContext):
     mark_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['mark_id'] = mark_id
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Выберите модель',
         reply_markup=models_keyboard(mark_id)
@@ -91,7 +96,8 @@ async def register_models(callback_data: types.CallbackQuery, state: FSMContext)
     model_id = callback_data.data
     async with state.proxy() as state_data:
         state_data['model_id'] = model_id
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Растаможен в Казахстане?',
         reply_markup=true_and_false_keyboard()
@@ -104,7 +110,8 @@ async def register_resident(callback_data: types.CallbackQuery, state: FSMContex
     resident_bool = callback_data.data
     async with state.proxy() as state_data:
         state_data['resident_bool'] = bool(resident_bool)
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Аварийная / Не на ходу?',
         reply_markup=true_and_false_keyboard()
@@ -117,7 +124,8 @@ async def register_crash(callback_data: types.CallbackQuery, state: FSMContext):
     crash_bool = callback_data.data
     async with state.proxy() as state_data:
         state_data['crash_bool'] = bool(crash_bool)
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Руль',
         reply_markup=wheel_choices_keyboard()
@@ -130,7 +138,8 @@ async def register_steering_wheel(callback_data: types.CallbackQuery, state:FSMC
     wheel = callback_data.data
     async with state.proxy() as state_data:
         state_data['wheel'] = wheel
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Тип топлива',
         reply_markup=engine_keyboard()
@@ -139,11 +148,12 @@ async def register_steering_wheel(callback_data: types.CallbackQuery, state:FSMC
 
 
 @dp.callback_query_handler(state=UserState.engine)
-async def register_engine(callback_data: types.CallbackQuery, state:FSMContext):
+async def register_engine(callback_data: types.CallbackQuery, state: FSMContext):
     engine = callback_data.data
     async with state.proxy() as state_data:
         state_data['engine'] = engine
-    await bot.send_message(
+    await bot.edit_message_text(
+        message_id=callback_data.message.message_id,
         chat_id=callback_data.from_user.id,
         text='Введите объем двигателя: Например (2.0)',
     )
@@ -261,96 +271,27 @@ async def register_phone(message: types.Message, state: FSMContext):
     )
 
 
+@dp.callback_query_handler(text='cabinet', state='*')
+async def cabinet(callback: types.CallbackQuery, state: FSMContext):
+    if User.check_user(callback.from_user.id):
+        user = User.get_user(callback.from_user.id)
+        message = f'' \
+                  f'Имя: {user.first_name}\n' \
+                  f'Номер телефона: {user.mobile_phone}\nРегион: {user.region.name}'
+        await bot.send_message(
+            chat_id=callback.from_user.id,
+            text=message,
+            reply_markup=edit_profile_keyboard()
+        )
+    else:
+        await bot.send_message(
+            chat_id=callback.from_user.id,
+            text='Вы еще не подавали ни одного объявления'
+        )
+        await UserState.register.set()
+
+@dp.callback_query_handler(text='edit_phone', state='*')
+async def edit_phone(callback: types.CallbackQuery, state: FSMContext):
+    pass
 
 
-
-
-
-# @dp.message_handler(state=UserState.price)
-# async def register_price_to(message: types.Message, state: FSMContext):
-#     price = message.text
-#     async with state.proxy() as state_data:
-#         state_data['price'] = price
-#
-#     info = await state.get_data()
-#     info['username'] = message.from_user.username
-#     info['first_name'] = message.from_user.first_name
-#     info['telegram_id'] = message.from_user.id
-#     User().add(**info)
-#     await state.finish()
-#     await bot.send_message(
-#         chat_id=message.chat.id,
-#         text='Начнем!',
-#         reply_markup=start_keyboard()
-#     )
-#
-#
-# @dp.callback_query_handler(text='search')
-# async def search(callback: types.CallbackQuery, state: FSMContext):
-#     data = sh.CallbackDataSchema().dump(callback)
-#     instance_id = data.get('from').get('id')
-#     auto = test(instance_id)
-#     objects = paginate(auto, page=0, limit=1)
-#     objects = objects[0]
-#     count_pages = len(auto)
-#     async with state.proxy() as state_data:
-#         state_data['page'] = 1
-#         state_data['auto'] = auto
-#         state_data['count_pages'] = count_pages
-#
-#     msg = 'Марка: {}\n Год: {} \n Цена: {}\n '.format(*objects.values())
-#     image = objects.get('image_url')
-#     await bot.send_photo(
-#         chat_id=instance_id,
-#         caption=msg,
-#         photo=image,
-#         reply_markup=paginations_keyboard(count_pages=count_pages)
-#     )
-#     await UserState.view.set()
-#
-#
-# @dp.callback_query_handler(state=UserState.view)
-# async def view(callback: types.CallbackQuery, state: FSMContext):
-#     message_id = callback.message.message_id
-#     data = sh.CallbackDataSchema().dump(callback)
-#     instance_id = data.get('from').get('id')
-#     page = await state.get_data()
-#     count = page['page']
-#     count_pages = page['count_pages']
-#     if callback.data == 'next':
-#         count += 1
-#         async with state.proxy() as state_data:
-#             state_data['page'] = count
-#     if callback.data == 'prev':
-#         count -= 1
-#         async with state.proxy() as state_data:
-#             state_data['page'] = count
-#     objects = paginate(page['auto'], page=count, limit=1)
-#     objects = objects[0]
-#     image = objects.get('image_url')
-#     msg = 'Марка: {}\n Год: {} \n Цена: {}\n '.format(*objects.values())
-#     await bot.edit_message_media(
-#         chat_id=instance_id,
-#         message_id=message_id,
-#         inline_message_id=callback.inline_message_id,
-#         media=types.InputMediaPhoto(
-#             type='photo',
-#             caption=msg,
-#             media=image
-#         ),
-#         reply_markup=paginations_keyboard(count=count, count_pages=count_pages)
-#     )
-#
-#
-# @dp.callback_query_handler(text='filter')
-# async def filter(callback_data: types.CallbackQuery):
-#     data = sh.CallbackDataSchema().dump(callback_data)
-#
-#
-# @dp.callback_query_handler(text='hits')
-# async def hits(callback_data: types.CallbackQuery):
-#     data = sh.CallbackDataSchema().dump(callback_data)
-#
-#
-# if __name__ == '__main__':
-#     executor.start_polling(dp, skip_updates=True)

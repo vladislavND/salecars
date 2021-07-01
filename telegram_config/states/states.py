@@ -18,6 +18,7 @@ class UserState(StatesGroup):
     image = State()
     phone = State()
     view = State()
+    register = State()
 
 
 
