@@ -18,7 +18,17 @@ class UserState(StatesGroup):
     image = State()
     phone = State()
     view = State()
-    register = State()
+
+
+class SettingsState(StatesGroup):
+
+    mobile_phone = State()
+
+
+class SearchState(StatesGroup):
+    pass
+
+
 
 
 

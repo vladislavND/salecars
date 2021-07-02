@@ -1,9 +1,18 @@
 from aiogram import types
-from aiogram.dispatcher.filters.builtin import CommandStart
+from aiogram.dispatcher import FSMContext
+from telegram_config.loader import dp, bot
 
-from telegram_config.loader import dp
 
-
-@dp.message_handler(CommandStart())
-async def bot_start(message: types.Message):
-    await message.answer(f'Привет, {message.from_user.full_name}!')
+@dp.message_handler(commands=['start'], state='*')
+async def start(message: types.Message, state: FSMContext):
+    await state.finish()
+    msg = "Привет, это SalecarsBot для поиска автомобилей!🚗\n\n" \
+          "Вот список доступных команд:\n\n" \
+          "/send - Подать объявление о продаже авто 🚙\n\n" \
+          "/search - Настроить фильтр и найти авто\n\n" \
+          "/settings - Настроить свой профиль ⚙\n\n"
+    await bot.send_message(
+        message.chat.id,
+        text=msg,
+        disable_web_page_preview=True
+    )

@@ -2,7 +2,7 @@ from django.contrib import admin
 from salecars.models import *
 
 
-@admin.register(User)
+@admin.register(Users)
 class UserAdmin(admin.ModelAdmin):
     list_fields = ('__all__')
 
@@ -36,6 +36,11 @@ class CityAdmin(admin.ModelAdmin):
     list_fields = ('__all__')
     list_display = ['name']
 
+
+@admin.register(Adsense)
+class AdsenseAdmin(admin.ModelAdmin):
+    list_fields = ('__all__')
+    list_display = ['auto', 'user']
 
 
 
