@@ -77,7 +77,7 @@ class Auto(models.Model):
     image = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.model.name
+        return f'{self.marks.name} {self.model.name} {self.year}'
 
 
 class UserAutoFilter(models.Model):
@@ -113,6 +113,9 @@ class UserAutoFilter(models.Model):
     price_from = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     date = models.DateField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.marks.name} {self.model.name} {self.year}'
+
 
 class Adsense(models.Model):
     user = models.ForeignKey("Users", on_delete=models.CASCADE, related_name='user_id')
@@ -122,6 +125,9 @@ class Adsense(models.Model):
     published = models.BooleanField(default=False)
     view = models.IntegerField(null=True, blank=True)
     pub_date = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.auto.marks.name} {self.auto.model.name} {self.auto.year}'
 
 
 class Users(models.Model):

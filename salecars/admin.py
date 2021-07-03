@@ -44,7 +44,7 @@ class AdsenseAdmin(admin.ModelAdmin):
 
 
 @admin.register(UserAutoFilter)
-class AutoFilterAdmin(admin.ModelAdmin):
+class UserAutoFilterAdmin(admin.ModelAdmin):
     list_fields = ('__all__')
     list_display = ['model', 'price_to', 'price_from']
 
