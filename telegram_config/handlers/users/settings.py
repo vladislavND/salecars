@@ -5,14 +5,14 @@ from telegram_config.keyboards.inline.keyboard import (
    edit_profile_keyboard
 )
 from telegram_config.states.states import UserState
-from salecars.models import User
+from salecars.models import Users
 from telegram_config.loader import dp, bot
 
 
 @dp.message_handler(commands=['settings'], state='*')
 async def cabinet(message: types.Message):
-    if User.check_user(message.from_user.id):
-        user = User.get_user(message.from_user.id)
+    if Users.check_user(message.from_user.id):
+        user = Users.get_user(message.from_user.id)
         messages = f'' \
                   f'Имя: {user.first_name}\n' \
                   f'Номер телефона: {user.mobile_phone}\nРегион: {user.region.name}'

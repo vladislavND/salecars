@@ -10,7 +10,7 @@ from telegram_config.keyboards.inline.keyboard import (
     phone_keyboard
 )
 from telegram_config.states.states import UserState
-from salecars.models import User, Auto, Region, City, Marks, Models
+from salecars.models import Users, Auto, Region, City, Marks, Models
 from telegram_config.loader import dp, bot
 
 logging.basicConfig(level=logging.INFO)
@@ -242,7 +242,7 @@ async def register_phone(message: types.Message, state: FSMContext):
         state_data['first_name'] = message.from_user.first_name
         state_data['username'] = message.from_user.username
     state_user = await state.get_data()
-    User.create_many_to_many(Auto, **state_user)
+    Users.create_many_to_many(Auto, **state_user)
     await bot.send_message(
         chat_id=message.chat.id,
         text='Ваше объявление передано модератору, как только объявление пройдет проверку вы получите уведомление'

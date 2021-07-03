@@ -8,7 +8,7 @@ async def on_startup(dp):
     telegram_config.middlewares.setup(dp)
 
     from telegram_config.utils.notify_admins import on_startup_notify
-    from telegram_config.handlers.users.register import bot
+    from telegram_config.handlers.users.send import bot
     from telegram_config.data.config import commands
     await bot.set_my_commands(commands)
     await on_startup_notify(dp)

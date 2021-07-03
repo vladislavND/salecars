@@ -25,8 +25,23 @@ class SettingsState(StatesGroup):
     mobile_phone = State()
 
 
-class SearchState(StatesGroup):
-    pass
+class FilterState(StatesGroup):
+    region = State()
+    city = State()
+    marks = State()
+    models = State()
+    price_to = State()
+    price_from = State()
+    crash = State()
+    engine = State()
+    value = State()
+    year = State()
+    steering_wheel = State()
+    resident = State()
+    add = State()
+    delete = State()
+    choice = State()
+
 
 
 

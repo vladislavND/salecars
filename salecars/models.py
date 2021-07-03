@@ -1,7 +1,11 @@
+import logging
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from telegram_config.utils.helper import without_keys
+
+logging.basicConfig(level=logging.INFO)
 
 
 class Marks(models.Model):
@@ -122,7 +126,7 @@ class Adsense(models.Model):
 
 class Users(models.Model):
     username = models.CharField(max_length=255)
-    mobile_phone = models.CharField(max_length=12)
+    mobile_phone = models.CharField(max_length=12, null=True, blank=True)
     telegram_id = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255, null=True, blank=True)
     auto = models.ManyToManyField(Auto)
@@ -132,40 +136,60 @@ class Users(models.Model):
     def __str__(self):
         return self.username
 
-    @classmethod
-    def get_or_check(cls, telegram_id):
+    @staticmethod
+    def get_or_check(telegram_id):
         try:
-            user = cls.objects.get(telegram_id=telegram_id)
+            user = Users.objects.get(telegram_id=telegram_id)
             return user
         except ObjectDoesNotExist:
             return False
 
-    @classmethod
-    def create_many_to_many(cls, many_model, **kwargs):
+    @staticmethod
+    def get_filters(telegram_id):
+        return Users.objects.get(telegram_id=telegram_id).auto_filter.all()
+
+    def add_filter(self, **kwargs):
+        user = self.get_or_check(kwargs.get('telegram_id'))
+        without = {'username', 'telegram_id', 'first_name'}
+        kwargs_filter = without_keys(kwargs, without)
+        if user:
+            auto_filter = UserAutoFilter(**kwargs_filter)
+            auto_filter.save()
+            user.auto_filter.add(auto_filter)
+        else:
+            user = Users(
+                username=kwargs.get('username'), mobile_phone=kwargs.get('mobile_phone'),
+                telegram_id=kwargs.get('telegram_id'), first_name=kwargs.get('first_name')
+            )
+            auto_filter = UserAutoFilter(**kwargs_filter)
+            auto_filter.save()
+            user.auto_filter.add(auto_filter)
+
+    def create_many_to_many(self, many_model, **kwargs):
         state_user = kwargs
         without = {'username', 'mobile_phone', 'telegram_id', 'first_name'}
         state_auto = without_keys(kwargs, without)
         auto = many_model(**state_auto)
         auto.save()
-        if cls.objects.filter(telegram_id=state_user.get('telegram_id')).exists():
-            user = cls.objects.get(telegram_id=state_user.get('telegram_id'))
+        user = self.get_or_check(state_user.get('telegram_id'))
+        if user:
             adsense = Adsense(
-                user_data=user, region_id=state_user.get('region'),
-                auto_id=auto, city_id=state_user.get('city')
+                user=user, region=state_user.get('region'),
+                auto=auto, city=state_user.get('city')
             )
             adsense.save()
             user.auto.add(auto)
             user.adsense.add(adsense)
         else:
-            user = cls(
+            user = Users(
                 username=state_user.get('username'), mobile_phone=state_user.get('mobile_phone'),
                 telegram_id=state_user.get('telegram_id'), first_name=state_user.get('first_name')
             )
             user.save()
             user.auto.add(auto)
             adsense = Adsense(
-                user_data=user, region_id=state_user.get('region'),
-                auto_id=auto, city_id=state_user.get('city')
+                user=user, region=state_user.get('region'),
+                auto=auto, city=state_user.get('city')
             )
             adsense.save()
             user.adsense.add(adsense)

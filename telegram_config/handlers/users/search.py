@@ -8,12 +8,12 @@ from telegram_config.keyboards.inline.search_keyboards import (
    search_keyboard
 )
 from telegram_config.states.states import UserState
-from salecars.models import User, Auto
+from salecars.models import Users, Auto
 from telegram_config.loader import dp, bot
 
 filters = [
-    {'region': 'Карагандинская область', 'marks': 'ford', 'price_to':'100000', 'price_from': '175000'},
-    {'region': 'Карагандинская область', 'marks': 'Москвич', 'price_to':'100000', 'price_from': '175000'}
+    {'region': 'Карагандинская область', 'marks': 'ford', 'price_to': '100000', 'price_from': '175000'},
+    {'region': 'Карагандинская область', 'marks': 'Москвич', 'price_to': '100000', 'price_from': '175000'}
 ]
 
 
