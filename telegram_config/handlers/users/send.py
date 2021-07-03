@@ -242,7 +242,7 @@ async def register_phone(message: types.Message, state: FSMContext):
         state_data['first_name'] = message.from_user.first_name
         state_data['username'] = message.from_user.username
     state_user = await state.get_data()
-    Users.create_many_to_many(Auto, **state_user)
+    Users().create_many_to_many(Auto, **state_user)
     await bot.send_message(
         chat_id=message.chat.id,
         text='Ваше объявление передано модератору, как только объявление пройдет проверку вы получите уведомление'

@@ -11,11 +11,11 @@ from telegram_config.loader import dp, bot
 
 @dp.message_handler(commands=['settings'], state='*')
 async def cabinet(message: types.Message):
-    if Users.check_user(message.from_user.id):
-        user = Users.get_user(message.from_user.id)
+    if Users().get_or_check(message.from_user.id):
+        user = Users.get_or_check(message.from_user.id)
         messages = f'' \
                   f'Имя: {user.first_name}\n' \
-                  f'Номер телефона: {user.mobile_phone}\nРегион: {user.region.name}'
+                  f'Номер телефона: {user.mobile_phone}\n'
         await bot.send_message(
             chat_id=message.from_user.id,
             text=messages,
